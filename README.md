@@ -4,7 +4,7 @@
 ### Simple Usage
 
 ```javascript
-import Deta from '%IMPORT_URL%';
+import Deta from 'https://deno.land/x/dena@1.0.0/mod.ts';
 const db = new Deta('PROJECT_KEY', 'PROJECT_ID', 'DB_NAME' );
 console.log(await db.get('helloDeta'))
 ```

@@ -1,4 +1,4 @@
-/**Version 0.1.1 */
+/**Version 1.0.0 */
 class Dena{
     key : string
     id : string
