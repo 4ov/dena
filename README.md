@@ -1,5 +1,5 @@
 # Deta ❤️ Deno = Dena
-## A promise based deta api wrapper for deno.
+## A promise based Deta http api wrapper for deno.
 
 ### Simple Usage
 
