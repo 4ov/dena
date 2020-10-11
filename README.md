@@ -4,7 +4,7 @@
 ### Simple Usage
 
 ```javascript
-import Deta from 'https://deno.land/x/dena@1.0.0/mod.ts';
+import Deta from 'https://deno.land/x/dena@1.0.2/mod.ts';
 const db = new Deta('PROJECT_KEY', 'PROJECT_ID', 'DB_NAME' );
 console.log(await db.get('helloDeta'))
 ```
@@ -65,7 +65,7 @@ db.query([
 ```
 * update
 ```javascript
-db.update('KEY', {name : "john doe"}).then(val=>{
+db.update('KEY', {set : "name" : "John"}).then(val=>{
     console.log(val)
 })
 .catch(err=>{

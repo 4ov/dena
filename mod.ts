@@ -128,4 +128,4 @@ class Dena{
 
 
 
-export default Deta
+export default Dena
