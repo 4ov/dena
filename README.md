@@ -1,10 +1,19 @@
 # Deta ❤️ Deno = Dena
 ## A promise based Deta http api wrapper for deno.
 
+[![nest badge](https://nest.land/badge.svg)](https://nest.land/package/dena)
+
+
 ### Simple Usage
 
 ```javascript
 import Deta from 'https://deno.land/x/dena@1.0.2/mod.ts';
+// or 
+import Deta from 'https://x.nest.land/dena@1.0.2/mod.ts';
+//or
+import Deta from 'https://raw.githubusercontent.com/lowray/dena/main/mod.ts';
+
+
 const db = new Deta('PROJECT_KEY', 'PROJECT_ID', 'DB_NAME' );
 console.log(await db.get('helloDeta'))
 ```

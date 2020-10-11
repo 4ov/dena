@@ -1,9 +1,0 @@
-{
-  "name": "dena",
-  "version" : "1.0.2",
-  "description": "A promise based Deta http api wrapper for deno.",
-  "stable": true,
-  "files": [
-    "*"
-  ]
-}
