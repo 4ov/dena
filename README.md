@@ -74,7 +74,7 @@ db.query([
 ```
 * update
 ```javascript
-db.update('KEY', {set : "name" : "John"}).then(val=>{
+db.update('KEY', {set : {name : "John"}}).then(val=>{
     console.log(val)
 })
 .catch(err=>{
