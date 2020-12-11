@@ -1,3 +1,5 @@
+import { cat } from "./utils.ts";
+
 /**Version 1.0.2 */
 class Dena {
   key: string;
@@ -35,9 +37,9 @@ class Dena {
         { method: "PUT", body: { items } },
       );
       request.then(async (data) => {
-        const callback = await data.json();
+        const callback = cat({}, async ()=>{await data.json()});
         if (callback.errors) {
-          reject(callback);
+          reject(await data.text());
         } else {
           resolve(callback);
         }
