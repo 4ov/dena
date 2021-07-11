@@ -1,6 +1,6 @@
-import { Options, DriveFetcherOptions, DrivePut, DrivePutResponse } from './types.ts'
+import { Options, DriveFetcherOptions, DrivePut, DrivePutResponse, DriveDeleteResponse, DriveListResponse, DriveListOptions } from './types.ts'
 import urlJoin from 'https://esm.sh/url-join'
-import { firstOf, toUint8Array, fallback } from './utils/autil.ts'
+import { firstOf, toUint8Array, fallback, toArray } from './utils/autil.ts'
 
 export default class Drive {
     private key: string;
@@ -25,14 +25,13 @@ export default class Drive {
             })
         }
 
-
         const response = await fetch(url, {
             method: method ? method : 'GET',
             headers: {
                 'X-API-Key': this.key,
                 ...options.headers
             },
-            [body ? 'body' : '']: body
+            body: (body as any) || null
         })
 
         let data = await fallback(async () => await response.clone().json(), {})
@@ -45,7 +44,7 @@ export default class Drive {
      * @param name The name of the file
      * @param options uploaded file optipns
      */
-    async put(name: string, options: DrivePut) : Promise<DrivePutResponse> {
+    async put(name: string, options: DrivePut): Promise<DrivePutResponse> {
         let body;
         const source = firstOf(["data", "path"], options)
         if (source == 'data') {
@@ -58,8 +57,10 @@ export default class Drive {
 
         return await this.fetcher({
             searchParams: { name },
-            [body ? 'body' : '']: body,
-            [options.contentType ? 'headers' : '']: { 'Content-Type': options.contentType },
+            body: body ? body : undefined,
+            headers: options.contentType ? {
+                'Content-Type': options.contentType
+            } : undefined,
             urlParams: ["files"],
             method: "POST"
         }).then(d => d.json())
@@ -70,7 +71,7 @@ export default class Drive {
      * retreives a file from a drive by its name.
      * @param name The name of the file to get.
      */
-    async get(name: string) : Promise<Uint8Array> {
+    async get(name: string): Promise<Uint8Array> {
         return new Uint8Array(
             (await this.fetcher({
                 searchParams: { name },
@@ -80,7 +81,26 @@ export default class Drive {
     }
 
 
-    
+    async delete(name: string | string[]): Promise<DriveDeleteResponse> {
+        name = toArray(name)
+        return await this.fetcher({
+            urlParams: ["files"],
+            method: "DELETE",
+            body: {
+                names: name
+            },
+            headers: {
+                "Content-Type": "application/json"
+            }
+        }) as any
+    }
+
+    async list(options : DriveListOptions): Promise<DriveListResponse>{
+        return await this.fetcher({
+            searchParams : options,
+        }) as any
+    }
+
 
 
 }

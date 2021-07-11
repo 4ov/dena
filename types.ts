@@ -49,11 +49,31 @@ interface _DrivePut {
     contentType?: string
 }
 
-export interface DrivePutResponse{
-    name: string, 
-    project_id: string, 
+export interface DrivePutResponse {
+    name: string,
+    project_id: string,
     drive_name: string
 }
 
 
-export type DrivePut = RequireAtLeastOne<_DrivePut, 'data' | 'path'> 
+export interface DriveDeleteResponse {
+    deleted?: string[],
+    failed?: { [k: string]: string }
+}
+
+export interface DriveListResponse{
+    paging : {
+        size : number,
+        last : string
+    },
+    names : string[]
+}
+
+export interface DriveListOptions{
+    limit? : number,
+    prefix? : string,
+    last? : string
+}
+
+
+export type DrivePut = RequireAtLeastOne<_DrivePut, 'data' | 'path'>

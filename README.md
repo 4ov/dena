@@ -65,5 +65,5 @@ path : "./path-to-me.png"
 - [ ] End Chunked Upload
 - [ ] Abort Chunked Upload
 - [x] Download File `Drive.get`
-- [ ] List Files
-- [ ] Delete Files
+- [ ] List Files `Drive.list`
+- [x] Delete Files `Drive.delete`
