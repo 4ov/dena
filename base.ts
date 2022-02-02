@@ -1,4 +1,8 @@
-import { Options, BaseFetcherOptions, UpdateObject, QueryResponse, UpdateResponse, DeleteResponse } from './types.ts'
+/// <reference path="./base.d.ts" />
+
+
+
+
 import urlJoin from 'https://esm.sh/url-join'
 import { toArray } from './utils/autil.ts'
 
@@ -31,7 +35,7 @@ export default class Base {
             [body ? 'body' : '']: JSON.stringify(body)
         })
 
-        const statusCode = await response.status
+        const statusCode = response.status
         const data = await response.json()
 
 
@@ -46,7 +50,7 @@ export default class Base {
      * Stores multiple items in a single request. This request overwrites an item if the key already exists.
      * @param `items` An array of items object to be stored.
      */
-    async put<T>(items: T) {
+    async put<T>(items: T): Promise<PutResponse> {
         const body = { items }
         return await this.fetcher({
             body,
@@ -59,7 +63,7 @@ export default class Base {
      * Get a stored item.
      * @param key The key (aka. ID) of the item you want to retrieve
      */
-    async get<T = object>(key: string) : Promise<T> {
+    async get<T = DefaultObject>(key: string) : Promise<T> {
         return await this.fetcher({
             urlParams: ["items", key]
         })
@@ -79,7 +83,7 @@ export default class Base {
      * Creates a new item only if no item with the same `key` exists.
      * @param item The item to be stored.
      */
-    async insert<T>(item: T) : Promise<object> {
+    async insert<T>(item: T) : Promise<T> {
         const body = { item }
         return await this.fetcher({
             urlParams: ["items"],
@@ -97,12 +101,12 @@ export default class Base {
         return await this.fetcher({
             method: "PATCH",
             urlParams: ["items", key],
-            body
-        })
+            body : body as DefaultObject
+        }) 
     }
 
 
-    async query<T>(query: object[] | object = [], limit?: number, last?: string) : Promise<QueryResponse<T>> {
+    async query<T>(query: DefaultObject[] | DefaultObject = [], limit?: number, last?: string) : Promise<QueryResponse<T>> {
         query = toArray(query)
         const body = { query, limit, last }
         return await this.fetcher({
@@ -111,7 +115,4 @@ export default class Base {
             body
         })
     }
-
-
-
 }

@@ -5,13 +5,8 @@ type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
         [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
     }[Keys]
 
-export interface Options { }
 
-export interface BaseFetcherOptions {
-    urlParams?: string[],
-    body?: object | null,
-    method?: string
-}
+
 
 export interface DriveFetcherOptions extends BaseFetcherOptions {
     searchParams?: { [k: string]: any }
@@ -19,28 +14,13 @@ export interface DriveFetcherOptions extends BaseFetcherOptions {
 }
 
 
-export interface UpdateObject {
-    set?: { [key: string]: any },
-    increment?: { [key: string]: any },
-    append?: { [key: string]: any },
-    prepend?: { [key: string]: any },
-    delete?: { [key: string]: any }
-}
 
 
 
-export interface QueryResponse<T = object> {
-    paging: { size: number }
-    items: T[]
-}
 
-export interface UpdateResponse extends UpdateObject {
-    key: string
-}
 
-export interface DeleteResponse {
-    key: string
-}
+
+
 
 
 interface _DrivePut {
@@ -77,3 +57,5 @@ export interface DriveListOptions{
 
 
 export type DrivePut = RequireAtLeastOne<_DrivePut, 'data' | 'path'>
+
+
