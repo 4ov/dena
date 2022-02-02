@@ -34,7 +34,7 @@ export default class Base {
             },
             [body ? 'body' : '']: JSON.stringify(body)
         })
-
+        
         const statusCode = response.status
         const data = await response.json()
 
@@ -50,7 +50,8 @@ export default class Base {
      * Stores multiple items in a single request. This request overwrites an item if the key already exists.
      * @param `items` An array of items object to be stored.
      */
-    async put<T>(items: T): Promise<PutResponse> {
+    async put<T>(items: T | T[]): Promise<PutResponse> {
+        items = toArray(items)
         const body = { items }
         return await this.fetcher({
             body,
