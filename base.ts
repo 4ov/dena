@@ -20,7 +20,7 @@ export default class Base {
 
     private async fetcher(options: BaseFetcherOptions) {
         const { body, urlParams, method } = options
-        let url = urlParams ? urlParams.reduce((p, c) => urlJoin(p, c), this.baseUrl) : this.baseUrl
+        const url = urlParams ? urlParams.reduce((p, c) => urlJoin(p, c), this.baseUrl) : this.baseUrl
 
         const response = await fetch(url, {
             method: method ? method : 'GET',
@@ -31,11 +31,15 @@ export default class Base {
             [body ? 'body' : '']: JSON.stringify(body)
         })
 
-        let data = await response.json()
+        const statusCode = await response.status
+        const data = await response.json()
 
-        return data.errors ? Promise.reject(data) : data
 
-
+        if (statusCode >= 200 && statusCode < 300) {
+            return data
+        } else {
+            return Promise.reject(data)
+        }
     }
 
     /**
