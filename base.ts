@@ -42,7 +42,7 @@ export default class Base {
      * Stores multiple items in a single request. This request overwrites an item if the key already exists.
      * @param `items` An array of items object to be stored.
      */
-    async put(items: object[]) {
+    async put<T>(items: T) {
         const body = { items }
         return await this.fetcher({
             body,
@@ -55,7 +55,7 @@ export default class Base {
      * Get a stored item.
      * @param key The key (aka. ID) of the item you want to retrieve
      */
-    async get(key: string) : Promise<object> {
+    async get<T = object>(key: string) : Promise<T> {
         return await this.fetcher({
             urlParams: ["items", key]
         })
@@ -75,7 +75,7 @@ export default class Base {
      * Creates a new item only if no item with the same `key` exists.
      * @param item The item to be stored.
      */
-    async insert(item: object) : Promise<object> {
+    async insert<T>(item: T) : Promise<object> {
         const body = { item }
         return await this.fetcher({
             urlParams: ["items"],
@@ -98,7 +98,7 @@ export default class Base {
     }
 
 
-    async query(query: object[] | object = [], limit?: number, last?: string) : Promise<QueryResponse> {
+    async query<T>(query: object[] | object = [], limit?: number, last?: string) : Promise<QueryResponse<T>> {
         query = toArray(query)
         const body = { query, limit, last }
         return await this.fetcher({

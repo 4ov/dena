@@ -29,9 +29,9 @@ export interface UpdateObject {
 
 
 
-export interface QueryResponse {
+export interface QueryResponse<T = object> {
     paging: { size: number }
-    items: object[]
+    items: T[]
 }
 
 export interface UpdateResponse extends UpdateObject {
