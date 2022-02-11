@@ -1,109 +1,113 @@
-import { Options, DriveFetcherOptions, DrivePut, DrivePutResponse, DriveDeleteResponse, DriveListResponse, DriveListOptions } from './types.ts'
-import urlJoin from 'https://esm.sh/url-join'
-import { firstOf, toUint8Array, fallback, toArray } from './utils/autil.ts'
+/// <reference path="./drive.d.ts" />
 
+// import { Options, DriveFetcherOptions, DrivePut, DrivePutResponse, DriveDeleteResponse, DriveListResponse, DriveListOptions } from './types.ts'
+import urlJoin from "https://esm.sh/url-join";
+import {
+  firstOf,
+  toUint8Array,
+  fallback as _fallback,
+  toArray,
+  defaultize,
+} from "./utils/autil.ts";
+import { defaultDriveFetcher } from "./defaults.ts";
 export default class Drive {
-    private key: string;
-    private id: string;
-    private options: Options;
-    private name: string;
-    private get baseUrl() { return `https://drive.deta.sh/v1/${this.id}/${this.name}` }
-    constructor(key: string, id: string, name: string, options: Options) {
-        this.key = key;
-        this.id = id;
-        this.options = options;
-        this.name = name;
+  private key: string;
+  private id: string;
+  private options: any;
+  private name: string;
+  private get baseUrl() {
+    return `https://drive.deta.sh/v1/${this.id}/${this.name}`;
+  }
+  constructor(key: string, id: string, name: string, options: any) {
+    this.key = key;
+    this.id = id;
+    this.options = options;
+    this.name = name;
+  }
+
+  private async fetcher(options: IDriveFetcher) {
+    const { headers, body, method, urlParams, searchParams } = defaultize(
+      defaultDriveFetcher,
+      options
+    );
+    const urlString = urlJoin(this.baseUrl, ...urlParams!); //urlParams filled by defaultize
+    const search = new URLSearchParams(searchParams);
+    const url = new URL(urlString);
+    url.search = search.toString();
+    const response = await fetch(url.toString(), {
+      method,
+      headers: {
+        "X-API-Key": this.key,
+        ...headers,
+      },
+      [body ? "body" : ""]: body,
+    });
+
+    if (response.status >= 200 && response.status < 300) {
+      return response.json();
+    } else {
+      return Promise.reject(response.json());
+    }
+  }
+
+  /**
+   * Stores a smaller file in a single request. Use this endpoint if the file size is small enough to be sent in a single request. The file is overwritten if the file with given name already exists.
+   * @param name The name of the file
+   * @param options uploaded file optipns
+   */
+  async put(name: string, options: IPutOptions): Promise<IPutOptions> {
+    let body;
+    const source = firstOf(["data", "path"], options);
+    if (source == "data") {
+      body = toUint8Array(options["data"] as string | Uint8Array);
+    } else if (source == "path") {
+      body = await Deno.readFile(options["path"] as string);
+    } else {
+      return Promise.reject({
+        errors: ["`data` or `path` should be included in options"],
+      });
     }
 
-    private async fetcher(options: DriveFetcherOptions) {
-        const { body, urlParams, method } = options
-        let url = new URL(urlParams ? urlParams.reduce((p, c) => urlJoin(p, c), this.baseUrl) : this.baseUrl)
+    //@ts-ignore: blabla
+    return (await this.fetcher({
+      urlParams: ["files"],
+      method: "POST",
+      body,
+      searchParams: { name },
+    }));
+  }
 
-        if (options.searchParams) {
-            Object.entries(options.searchParams).forEach(([k, v]) => {
-                url.searchParams.append(`${k}`, `${v}`)
-            })
-        }
+  /**
+   * retreives a file from a drive by its name.
+   * @param name The name of the file to get.
+   */
+  async get(name: string): Promise<Uint8Array> {
+    return new Uint8Array(
+      (await this.fetcher({
+        searchParams: { name },
+        urlParams: ["files", "download"],
+      }).then((d) => d.arrayBuffer())) as number[]
+    );
+  }
 
-        const response = await fetch(url, {
-            method: method ? method : 'GET',
-            headers: {
-                'X-API-Key': this.key,
-                ...options.headers
-            },
-            body: (body as any) || null
-        })
+  async delete(name: string | string[]): Promise<IDeleteResponse> {
+    name = toArray(name);
+    return (await this.fetcher({
+      urlParams: ["files"],
+      method: "DELETE",
+      body: {
+        names: name,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })) as any;
+  }
 
-        let data = await fallback(async () => await response.clone().json(), {})
-        return data.errors ? Promise.reject(data) : response
-    }
-
-
-    /**
-     * Stores a smaller file in a single request. Use this endpoint if the file size is small enough to be sent in a single request. The file is overwritten if the file with given name already exists.
-     * @param name The name of the file
-     * @param options uploaded file optipns
-     */
-    async put(name: string, options: DrivePut): Promise<DrivePutResponse> {
-        let body;
-        const source = firstOf(["data", "path"], options)
-        if (source == 'data') {
-            body = toUint8Array((options["data"] as string | Uint8Array))
-        } else if (source == 'path') {
-            body = await Deno.readFile((options["path"] as string))
-        } else {
-            return Promise.reject({ errors: ["`data` or `path` should be included in options"] })
-        }
-
-        return await this.fetcher({
-            searchParams: { name },
-            body: body ? body : undefined,
-            headers: options.contentType ? {
-                'Content-Type': options.contentType
-            } : undefined,
-            urlParams: ["files"],
-            method: "POST"
-        }).then(d => d.json())
-
-    }
-
-    /**
-     * retreives a file from a drive by its name.
-     * @param name The name of the file to get.
-     */
-    async get(name: string): Promise<Uint8Array> {
-        return new Uint8Array(
-            (await this.fetcher({
-                searchParams: { name },
-                urlParams: ["files", "download"]
-            }).then(d => d.arrayBuffer()) as number[])
-        )
-    }
-
-
-    async delete(name: string | string[]): Promise<DriveDeleteResponse> {
-        name = toArray(name)
-        return await this.fetcher({
-            urlParams: ["files"],
-            method: "DELETE",
-            body: {
-                names: name
-            },
-            headers: {
-                "Content-Type": "application/json"
-            }
-        }) as any
-    }
-
-    async list(options : DriveListOptions): Promise<DriveListResponse>{
-        return await this.fetcher({
-            searchParams : options,
-        }) as any
-    }
-
-
-
+  async list(options?: IListOptions): Promise<IListResponse> {
+    return (await this.fetcher({
+      searchParams: options,
+      urlParams: ["files"],
+    })) as any;
+  }
 }
-
-
-
