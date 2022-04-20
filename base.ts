@@ -76,7 +76,8 @@ export default class Base {
      */
     async delete(key: string): Promise<DeleteResponse> {
         return await this.fetcher({
-            urlParams: ["items", key]
+            urlParams: ["items", key],
+            method : "DELETE"
         })
     }
 
