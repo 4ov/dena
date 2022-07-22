@@ -13,15 +13,15 @@ import { defaultDriveFetcher } from "./defaults.ts";
 export default class Drive {
   private key: string;
   private id: string;
-  private options: any;
+  // private options: any;
   private name: string;
   private get baseUrl() {
     return `https://drive.deta.sh/v1/${this.id}/${this.name}`;
   }
-  constructor(key: string, id: string, name: string, options: any) {
+  constructor(key: string, id: string, name: string) {
     this.key = key;
     this.id = id;
-    this.options = options;
+    // this.options = options;
     this.name = name;
   }
 

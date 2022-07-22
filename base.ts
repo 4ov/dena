@@ -1,5 +1,11 @@
-/// <reference path="./base.d.ts" />
 
+import {
+    PutResponse,
+    DeleteResponse,
+    UpdateObject,
+    UpdateResponse,
+QueryResponse
+} from './base.types.ts'
 
 
 
@@ -8,16 +14,17 @@ import { toArray } from './utils/autil.ts'
 
 
 
-export default class Base {
+// deno-lint-ignore no-explicit-any
+export default class Base<T = Record<any, any>> {
     private key: string;
     private id: string;
-    private options: Options;
+    // private options: Options;
     private name: string;
     private get baseUrl() { return `https://database.deta.sh/v1/${this.id}/${this.name}` }
-    constructor(key: string, id: string, name: string, options: Options) {
+    constructor(key: string, id: string, name: string) {
         this.key = key;
         this.id = id;
-        this.options = options;
+        // this.options = options;
         this.name = name;
     }
 
@@ -50,7 +57,7 @@ export default class Base {
      * Stores multiple items in a single request. This request overwrites an item if the key already exists.
      * @param `items` An array of items object to be stored.
      */
-    async put<T>(items: T | T[]): Promise<PutResponse> {
+    async put(items: T | T[]): Promise<PutResponse> {
         items = toArray(items)
         const body = { items }
         return await this.fetcher({
@@ -64,7 +71,7 @@ export default class Base {
      * Get a stored item.
      * @param key The key (aka. ID) of the item you want to retrieve
      */
-    async get<T = DefaultObject>(key: string) : Promise<T> {
+    async get(key: string) : Promise<T> {
         return await this.fetcher({
             urlParams: ["items", key]
         })
@@ -85,7 +92,7 @@ export default class Base {
      * Creates a new item only if no item with the same `key` exists.
      * @param item The item to be stored.
      */
-    async insert<T>(item: T) : Promise<T> {
+    async insert(item: T) : Promise<T> {
         const body = { item }
         return await this.fetcher({
             urlParams: ["items"],
@@ -99,7 +106,7 @@ export default class Base {
      * @param key The key of the item
      * @param body the update object
      */
-    async update(key: string, body: UpdateObject) : Promise<UpdateResponse> {
+    async update(key: string, body: UpdateObject<T>) : Promise<UpdateResponse<T>> {
         return await this.fetcher({
             method: "PATCH",
             urlParams: ["items", key],
