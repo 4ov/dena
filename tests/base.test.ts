@@ -13,7 +13,7 @@ const DETA_ID = Deno.env.get("DETA_ID");
 assert(DETA_KEY, "DETA_KEY is not set");
 assert(DETA_ID, "DETA_ID is not set");
 
-const testBase = new Base(DETA_KEY, DETA_ID, "test_db", {});
+const testBase = new Base(DETA_KEY, DETA_ID, "test_db");
 
 Deno.test(async function base_put() {
   const result = await testBase.put({

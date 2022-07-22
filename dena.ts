@@ -10,6 +10,7 @@ class Dena {
     // private options: Options;
     constructor(key: string, id?: string) {
         //TODO: make sure that the way to create keys will not changed
+        if(key.length === 0)throw new Error('project key is empty')
         if(!id)id = key.split('_')[0]
         this.key = key
         this.id = id
