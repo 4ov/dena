@@ -8,7 +8,9 @@ class Dena {
     private key: string;
     private id: string;
     // private options: Options;
-    constructor(key: string, id: string) {
+    constructor(key: string, id?: string) {
+        //TODO: make sure that the way to create keys will not changed
+        if(!id)id = key.split('_')[0]
         this.key = key
         this.id = id
         // this.options = defaultize(defaults.options, options)
